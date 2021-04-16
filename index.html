@@ -17,10 +17,11 @@
         <button type="button" onclick="runFaceMatch();" class="btn btn-primary">Run Face Match</button>
       </div>
       <div id="div1"></div>
+      <div id="table"></div>
     </div>
     <script>
       // client calls the auth api to get the token from their backend server
-      var jwtToken = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImUzNTk1MiIsImhhc2giOiJmZjc2MjM4YWY0NDk4YzMxMzE4MGRlZWI5ZGFjODNiZmEwODk3MjE1NzRhNjE2ZjQ4ZGQ4ZDZlOTY1MGI2ZGI5IiwiaWF0IjoxNjE4MzY3NzI1LCJleHAiOjE2MTg0MTA5MjUsImp0aSI6ImYzM2MxNDhkLTU0ZDgtNGYwYi04NWUzLTA1NjU2NTQyYmIzYiJ9.oAxbY65bpLsJSN6VeDnse_GdUoIgJK-uRoUqE0T0qMFfT2NV-QwP6i-38jasizxHXz51FS2x3o3UuDiLlUknCiQTn8_LmhiKr8s-PBD5xlkie2Bn2b1npQg7QE_LMhWD04VxsY8eBoanBwsQcISRmEknTzCA68RzIp1lddIjUMY'
+      var jwtToken = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImUzNTk1MiIsImhhc2giOiJmZjc2MjM4YWY0NDk4YzMxMzE4MGRlZWI5ZGFjODNiZmEwODk3MjE1NzRhNjE2ZjQ4ZGQ4ZDZlOTY1MGI2ZGI5IiwiaWF0IjoxNjE4Mzk4NTIyLCJleHAiOjE2MTg0MDQ1MjIsImp0aSI6Ijk4NWFhOWM5LTVjZmEtNGNiNi1hOTE2LTkwMzkzMGU4Yjg5MyJ9.btQPJqxrBUrihG5xADadg_r7G_hJzFMtLHeVdMdm7gLOkavjmYLJeYLCW6qGCAsEBauaGTXZnWGRJ1YdK3Hr4rLbBTlgZBbRrQZTvqnJ_GueTPQ1Z_JxvINwnUaBvESskbVU4GKRfdOT1VzxK3b9IIC6QLRbZw2DVrR9Fs56BQo'
       HyperSnapSDK.init(jwtToken, HyperSnapParams.Region.AsiaPacific);
       HyperSnapSDK.startUserSession();
       var faceImage = '';
@@ -60,12 +61,36 @@
           var element = document.getElementById('div1');
           element.appendChild(para);
         } else {
+          let data = HVResponse.response.result[0].details
           docImage = HVResponse.imgBase64
-          var para = document.createElement('p');
-          var node = document.createTextNode(JSON.stringify(HVResponse));
-          para.appendChild(node);
-          var element = document.getElementById('div1');
-          element.appendChild(para);
+          // create table
+          let body = document.getElementById("table");
+          let tbl = document.createElement("table");
+          let trHead = document.createElement("tr");
+
+          //create table header
+          for (const key in data) {
+            let th = document.createElement("th");
+            var thText = document.createTextNode(`${key}`);
+            th.appendChild(thText);
+            trHead.appendChild(th);
+          }
+          tbl.appendChild(trHead)
+
+          //create table content
+          let trBody = document.createElement("tr");
+          for (const key in data) {
+
+            let td = document.createElement("td");
+            var tdText = document.createTextNode(`${data[key].value}`);
+            td.appendChild(tdText);
+            trBody.appendChild(td);
+
+          }
+          tbl.appendChild(trBody)
+
+          body.appendChild(tbl);
+          tbl.setAttribute("border", "2");
         }
       };
 
@@ -78,11 +103,15 @@
           element.appendChild(para);
         } else {
           faceImage = HVResponse.imgBase64
+          let data = HVResponse.response.result
+
           var para = document.createElement('p');
-          var node = document.createTextNode(JSON.stringify(HVResponse));
+          var node = document.createTextNode(`Liveness: ${data.liveFace.value}, Blur: ${data.qualityChecks.blur.value}, Eye Closed: ${data.qualityChecks.eyesClosed.value}, Mask: ${data.qualityChecks.maskPresent.value}, Multiple Face: ${data.qualityChecks.multipleFaces.value}, is Pass: ${data.summary.action} `);
           para.appendChild(node);
           var element = document.getElementById('div1');
           element.appendChild(para);
+          console.log(HVResponse);
+
         }
       };
 
@@ -94,8 +123,10 @@
           var element = document.getElementById('div1');
           element.appendChild(para);
         } else {
+          let data = HVResponse.response.result
+
           var para = document.createElement('p');
-          var node = document.createTextNode(JSON.stringify(HVResponse));
+          var node = document.createTextNode(`Match: ${data.match}, Score: ${data.match_score}`);
           para.appendChild(node);
           var element = document.getElementById('div1');
           element.appendChild(para);
@@ -105,3 +136,4 @@
   </body>
 
 </html>
+
